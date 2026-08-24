@@ -1,0 +1,7 @@
+*.test
+coverage.out
+coverage2.out
+*.exe
+.env
+.idea/
+.vscode/

@@ -1,0 +1,106 @@
+name: CI — fiapx-video-service
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  GO_VERSION: "1.25"
+  COVERAGE_MIN: "70"
+  # Packages with real business logic. Excluded from the gate:
+  #   cmd/api                                — process wiring
+  #   internal/platform/{db,cache,storage,messaging,idempotency} — thin
+  #     wrappers around Postgres/Redis/S3/Kafka, need live infra to test
+  #     meaningfully (not wired into CI yet — see fiapx-video-service README)
+  #   internal/platform/logging              — 3-line slog wrapper
+  #   internal/video/gateway                 — Postgres/Redis repo impls
+  #   internal/saga                          — Kafka wiring, covered indirectly
+  #     by fiapx-events' own transport/kafka tests
+  COVERAGE_PKGS: "./internal/video/domain/... ./internal/video/usecase/... ./internal/video/delivery/... ./internal/platform/jwt/... ./internal/platform/httpauth/... ./internal/platform/health/... ./internal/platform/config/... ./internal/platform/metrics/..."
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fiapx-video-service
+        uses: actions/checkout@v4
+
+      # go.mod still has a local `replace github.com/noggrj/fiapx-events =>
+      # ../fiapx-events` for development convenience. Once fiapx-events is
+      # tagged (v1.0.0) this checkout + the replace directive should both
+      # be removed in favor of a normal `go get` dependency, same as the
+      # autorepair-* services did in Fase 4.
+      - name: Checkout fiapx-events (sibling, for the local replace directive)
+        uses: actions/checkout@v4
+        with:
+          repository: noggrj/fiapx-events
+          path: ../fiapx-events
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          args: --timeout=5m
+
+      - name: Run full test suite
+        run: go test -count=1 -race -timeout 120s ./...
+
+      - name: Coverage (business-logic packages only)
+        run: |
+          go test -count=1 -coverprofile=coverage.out ${{ env.COVERAGE_PKGS }}
+          go tool cover -func=coverage.out | tail -10
+
+      - name: Coverage gate (>= ${{ env.COVERAGE_MIN }}%)
+        run: |
+          PCT=$(go tool cover -func=coverage.out | tail -1 | awk '{print substr($3, 1, length($3)-1)}')
+          echo "::notice::Coverage = $PCT% (gate $COVERAGE_MIN%)"
+          awk -v p="$PCT" -v m="$COVERAGE_MIN" 'BEGIN{exit (p+0<m+0)?1:0}'
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: coverage
+          path: coverage.out
+          retention-days: 5
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      # NOTE: this job's Docker build has the same go.mod local-replace
+      # dependency on fiapx-events as the test job above, but a Docker
+      # build context can't reach a sibling checkout the way `go build`
+      # can — it only works once fiapx-events is tagged and this repo's
+      # go.mod points at a real `github.com/noggrj/fiapx-events vX.Y.Z`
+      # dependency instead of `replace ... => ../fiapx-events`. Until
+      # then, this job is expected to fail; that's tracked, not silent.
+      - name: Checkout fiapx-video-service
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (local only — no registry push yet)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: fiapx-video-service:ci
+          build-args: VERSION=${{ github.sha }}
+
+      - name: Container smoke test (local build only)
+        run: |
+          docker run --rm fiapx-video-service:ci ./server --version
