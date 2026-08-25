@@ -17,20 +17,32 @@ type Config struct {
 	S3Bucket     string
 	AWSRegion    string
 	KafkaBrokers []string
+
+	// S3Endpoint/S3PresignEndpoint/S3AccessKey/S3SecretKey are only set
+	// for local docker-compose (MinIO) — empty in production, where the
+	// SDK's default credential chain (EKS node/IRSA role) applies instead.
+	S3Endpoint        string
+	S3PresignEndpoint string
+	S3AccessKey       string
+	S3SecretKey       string
 }
 
 func Load() *Config {
 	_ = godotenv.Load()
 	return &Config{
-		Port:         getenv("PORT", "8080"),
-		Env:          getenv("APP_ENV", "development"),
-		DBURL:        os.Getenv("DB_URL"),
-		JWTSecret:    os.Getenv("JWT_SECRET"),
-		ServiceName:  getenv("SERVICE_NAME", "fiapx-video-service"),
-		RedisAddr:    os.Getenv("REDIS_ADDR"),
-		S3Bucket:     os.Getenv("S3_BUCKET"),
-		AWSRegion:    getenv("AWS_REGION", "us-east-1"),
-		KafkaBrokers: splitCSV(getenv("KAFKA_BROKERS", "")),
+		Port:              getenv("PORT", "8080"),
+		Env:               getenv("APP_ENV", "development"),
+		DBURL:             os.Getenv("DB_URL"),
+		JWTSecret:         os.Getenv("JWT_SECRET"),
+		ServiceName:       getenv("SERVICE_NAME", "fiapx-video-service"),
+		RedisAddr:         os.Getenv("REDIS_ADDR"),
+		S3Bucket:          os.Getenv("S3_BUCKET"),
+		AWSRegion:         getenv("AWS_REGION", "us-east-1"),
+		KafkaBrokers:      splitCSV(getenv("KAFKA_BROKERS", "")),
+		S3Endpoint:        os.Getenv("S3_ENDPOINT"),
+		S3PresignEndpoint: os.Getenv("S3_PRESIGN_ENDPOINT"),
+		S3AccessKey:       os.Getenv("S3_ACCESS_KEY"),
+		S3SecretKey:       os.Getenv("S3_SECRET_KEY"),
 	}
 }
 
