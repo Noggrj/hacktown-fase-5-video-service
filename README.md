@@ -3,11 +3,11 @@
 Serviço de upload, status e download de vídeos do sistema FIAP X —
 Hackathon SOAT (Fase 5). Recebe o vídeo bruto, grava no S3, publica
 `video.uploaded` no Kafka e reage a `video.processed`/`video.failed`
-(publicados pelo [`fiapx-processing-worker`](https://github.com/noggrj/fiapx-processing-worker))
+(publicados pelo [`fiapx-processing-worker`](https://github.com/noggrj/hacktown-fase-5-processing-worker))
 para manter o status atualizado — nunca roda o `ffmpeg` diretamente.
 
-Contratos de evento em [`fiapx-events`](https://github.com/noggrj/fiapx-events).
-Autenticação delegada ao [`fiapx-auth-service`](https://github.com/noggrj/fiapx-auth-service)
+Contratos de evento em [`fiapx-events`](https://github.com/noggrj/hacktown-fase-5-events).
+Autenticação delegada ao [`fiapx-auth-service`](https://github.com/noggrj/hacktown-fase-5-auth-service)
 — este serviço só *valida* o JWT (mesmo `JWT_SECRET` compartilhado).
 
 ## Arquitetura interna
@@ -94,11 +94,11 @@ ficam de fora do gate.
 
 ## Nota sobre o módulo `fiapx-events`
 
-`go.mod` usa `replace github.com/noggrj/fiapx-events => ../fiapx-events`
+`go.mod` usa `replace github.com/noggrj/hacktown-fase-5-events => ../fiapx-events`
 para desenvolvimento local (os dois repos precisam estar lado a lado no
 disco). **Antes do deploy real**, uma vez que `fiapx-events` esteja
 publicado e taggeado no GitHub, essa linha deve ser removida e a
-dependência fixada numa versão real via `go get github.com/noggrj/fiapx-events@vX.Y.Z`
+dependência fixada numa versão real via `go get github.com/noggrj/hacktown-fase-5-events@vX.Y.Z`
 — exatamente como `autorepair-billing-service` fez na Fase 4. Até lá, o
 job de build Docker do CI (que não enxerga o diretório irmão) falha por
 esse motivo — é uma limitação conhecida, não um bug silencioso.

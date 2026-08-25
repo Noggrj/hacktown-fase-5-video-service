@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/noggrj/fiapx-video-service/internal/platform/jwt"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/jwt"
 )
 
 type ctxKey string

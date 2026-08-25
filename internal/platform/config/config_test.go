@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/noggrj/fiapx-video-service/internal/platform/config"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/config"
 )
 
 func TestLoad_DefaultsWhenEnvUnset(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/noggrj/fiapx-video-service/internal/video/domain"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/domain"
 )
 
 type UploadVideoUseCase struct {

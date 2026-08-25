@@ -27,7 +27,7 @@ jobs:
       - name: Checkout fiapx-video-service
         uses: actions/checkout@v4
 
-      # go.mod still has a local `replace github.com/noggrj/fiapx-events =>
+      # go.mod still has a local `replace github.com/noggrj/hacktown-fase-5-events =>
       # ../fiapx-events` for development convenience. Once fiapx-events is
       # tagged (v1.0.0) this checkout + the replace directive should both
       # be removed in favor of a normal `go get` dependency, same as the
@@ -35,7 +35,7 @@ jobs:
       - name: Checkout fiapx-events (sibling, for the local replace directive)
         uses: actions/checkout@v4
         with:
-          repository: noggrj/fiapx-events
+          repository: noggrj/hacktown-fase-5-events
           path: ../fiapx-events
 
       - name: Set up Go
@@ -84,7 +84,7 @@ jobs:
       # dependency on fiapx-events as the test job above, but a Docker
       # build context can't reach a sibling checkout the way `go build`
       # can — it only works once fiapx-events is tagged and this repo's
-      # go.mod points at a real `github.com/noggrj/fiapx-events vX.Y.Z`
+      # go.mod points at a real `github.com/noggrj/hacktown-fase-5-events vX.Y.Z`
       # dependency instead of `replace ... => ../fiapx-events`. Until
       # then, this job is expected to fail; that's tracked, not silent.
       - name: Checkout fiapx-video-service

@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/noggrj/fiapx-video-service/internal/platform/health"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/health"
 )
 
 func TestLive_AlwaysOK(t *testing.T) {

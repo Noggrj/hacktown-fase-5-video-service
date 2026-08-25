@@ -8,12 +8,12 @@ import (
 	"github.com/google/uuid"
 	kafkago "github.com/segmentio/kafka-go"
 
-	events "github.com/noggrj/fiapx-events"
-	"github.com/noggrj/fiapx-events/idempotency"
-	"github.com/noggrj/fiapx-events/payloads"
-	eventskafka "github.com/noggrj/fiapx-events/transport/kafka"
+	events "github.com/noggrj/hacktown-fase-5-events"
+	"github.com/noggrj/hacktown-fase-5-events/idempotency"
+	"github.com/noggrj/hacktown-fase-5-events/payloads"
+	eventskafka "github.com/noggrj/hacktown-fase-5-events/transport/kafka"
 
-	"github.com/noggrj/fiapx-video-service/internal/video/usecase"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/usecase"
 )
 
 // ResultConsumer reads a single topic (video.processed OR video.failed —

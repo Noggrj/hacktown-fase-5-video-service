@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/noggrj/fiapx-video-service/internal/platform/httpauth"
-	"github.com/noggrj/fiapx-video-service/internal/platform/jwt"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/httpauth"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/jwt"
 )
 
 const testSecret = "test-secret-at-least-16-bytes"

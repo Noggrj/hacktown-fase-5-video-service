@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/noggrj/fiapx-video-service/internal/video/domain"
-	"github.com/noggrj/fiapx-video-service/internal/video/usecase"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/domain"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/usecase"
 )
 
 func TestGetVideo_OwnerCanFetch(t *testing.T) {

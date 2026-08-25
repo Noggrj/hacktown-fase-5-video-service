@@ -1,8 +1,8 @@
-module github.com/noggrj/fiapx-video-service
+module github.com/noggrj/hacktown-fase-5-video-service
 
 go 1.25.0
 
-replace github.com/noggrj/fiapx-events => ../fiapx-events
+replace github.com/noggrj/hacktown-fase-5-events => ../fiapx-events
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.43.7
@@ -13,7 +13,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/joho/godotenv v1.5.1
-	github.com/noggrj/fiapx-events v0.0.0-00010101000000-000000000000
+	github.com/noggrj/hacktown-fase-5-events v0.0.0-00010101000000-000000000000
 	github.com/prometheus/client_golang v1.24.1
 	github.com/redis/go-redis/v9 v9.22.0
 	github.com/segmentio/kafka-go v0.4.51

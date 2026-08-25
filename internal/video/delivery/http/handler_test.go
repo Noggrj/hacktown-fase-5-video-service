@@ -16,12 +16,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
-	videohttp "github.com/noggrj/fiapx-video-service/internal/video/delivery/http"
-	"github.com/noggrj/fiapx-video-service/internal/video/domain"
-	"github.com/noggrj/fiapx-video-service/internal/video/usecase"
+	videohttp "github.com/noggrj/hacktown-fase-5-video-service/internal/video/delivery/http"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/domain"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/usecase"
 
-	"github.com/noggrj/fiapx-video-service/internal/platform/httpauth"
-	"github.com/noggrj/fiapx-video-service/internal/platform/jwt"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/httpauth"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/jwt"
 )
 
 const testSecret = "test-secret-at-least-16-bytes"

@@ -12,9 +12,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
-	"github.com/noggrj/fiapx-video-service/internal/platform/httpauth"
-	"github.com/noggrj/fiapx-video-service/internal/video/domain"
-	"github.com/noggrj/fiapx-video-service/internal/video/usecase"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/httpauth"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/domain"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/usecase"
 )
 
 const maxUploadBytes = 500 << 20 // 500MB

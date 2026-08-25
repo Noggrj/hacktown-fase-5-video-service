@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/noggrj/fiapx-video-service/internal/video/domain"
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/domain"
 )
 
 type PostgresVideoRepository struct{ pool *pgxpool.Pool }
