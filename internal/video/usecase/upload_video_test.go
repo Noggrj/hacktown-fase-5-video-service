@@ -20,7 +20,7 @@ func TestUploadVideo_HappyPath(t *testing.T) {
 
 	userID := uuid.New()
 	content := strings.NewReader("fake video bytes")
-	v, err := uc.Execute(context.Background(), userID, "clip.mp4", content, int64(content.Len()), "")
+	v, err := uc.Execute(context.Background(), userID, "user@x.com", "clip.mp4", content, int64(content.Len()), "")
 	if err != nil {
 		t.Fatalf("Execute: %v", err)
 	}
@@ -47,7 +47,7 @@ func TestUploadVideo_RejectsUnsupportedFormat(t *testing.T) {
 	storage := newFakeStorage()
 	uc := usecase.NewUploadVideo(repo, storage, newFakeCache(), &fakePublisher{}, silentLogger())
 
-	_, err := uc.Execute(context.Background(), uuid.New(), "doc.pdf", strings.NewReader("x"), 1, "")
+	_, err := uc.Execute(context.Background(), uuid.New(), "user@x.com", "doc.pdf", strings.NewReader("x"), 1, "")
 	if err == nil {
 		t.Fatal("expected error for unsupported format")
 	}
@@ -62,7 +62,7 @@ func TestUploadVideo_PropagatesStorageError(t *testing.T) {
 	storage.uploadErr = errBoom
 	uc := usecase.NewUploadVideo(repo, storage, newFakeCache(), &fakePublisher{}, silentLogger())
 
-	_, err := uc.Execute(context.Background(), uuid.New(), "clip.mp4", strings.NewReader("x"), 1, "")
+	_, err := uc.Execute(context.Background(), uuid.New(), "user@x.com", "clip.mp4", strings.NewReader("x"), 1, "")
 	if err == nil {
 		t.Fatal("expected storage error to propagate")
 	}
@@ -76,7 +76,7 @@ func TestUploadVideo_InvalidatesUserCache(t *testing.T) {
 	cache.SetList(context.Background(), userID.String(), []byte(`[]`), 0)
 
 	uc := usecase.NewUploadVideo(repo, storage, cache, &fakePublisher{}, silentLogger())
-	if _, err := uc.Execute(context.Background(), userID, "clip.mp4", strings.NewReader("x"), 1, ""); err != nil {
+	if _, err := uc.Execute(context.Background(), userID, "user@x.com", "clip.mp4", strings.NewReader("x"), 1, ""); err != nil {
 		t.Fatalf("Execute: %v", err)
 	}
 	if _, ok := cache.GetList(context.Background(), userID.String()); ok {
@@ -90,7 +90,7 @@ func TestUploadVideo_SurvivesPublishFailure(t *testing.T) {
 	pub := &fakePublisher{err: errBoom}
 	uc := usecase.NewUploadVideo(repo, storage, newFakeCache(), pub, silentLogger())
 
-	v, err := uc.Execute(context.Background(), uuid.New(), "clip.mp4", strings.NewReader("x"), 1, "")
+	v, err := uc.Execute(context.Background(), uuid.New(), "user@x.com", "clip.mp4", strings.NewReader("x"), 1, "")
 	if err != nil {
 		t.Fatalf("Execute must not fail just because publish failed: %v", err)
 	}

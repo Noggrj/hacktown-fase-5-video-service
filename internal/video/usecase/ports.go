@@ -27,5 +27,5 @@ type Cache interface {
 
 // Publisher emits the one event this service produces.
 type Publisher interface {
-	PublishVideoUploaded(ctx context.Context, traceparent, videoID, userID, filename, s3RawKey string) error
+	PublishVideoUploaded(ctx context.Context, traceparent, videoID, userID, userEmail, filename, s3RawKey string) error
 }

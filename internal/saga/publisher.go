@@ -27,10 +27,11 @@ func NewPublisher(inner *eventskafka.Publisher) (*Publisher, error) {
 	return &Publisher{inner: inner}, nil
 }
 
-func (p *Publisher) PublishVideoUploaded(ctx context.Context, traceparent, videoID, userID, filename, s3RawKey string) error {
+func (p *Publisher) PublishVideoUploaded(ctx context.Context, traceparent, videoID, userID, userEmail, filename, s3RawKey string) error {
 	payload := payloads.VideoUploaded{
 		VideoID:    videoID,
 		UserID:     userID,
+		UserEmail:  userEmail,
 		Filename:   filename,
 		S3RawKey:   s3RawKey,
 		UploadedAt: time.Now().UTC(),

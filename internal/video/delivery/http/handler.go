@@ -72,7 +72,7 @@ func (h *Handler) HandleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	v, err := h.upload.Execute(r.Context(), userID, header.Filename, file, header.Size, r.Header.Get("traceparent"))
+	v, err := h.upload.Execute(r.Context(), userID, httpauth.Email(r.Context()), header.Filename, file, header.Size, r.Header.Get("traceparent"))
 	if err != nil {
 		writeErr(w, http.StatusUnprocessableEntity, err)
 		return

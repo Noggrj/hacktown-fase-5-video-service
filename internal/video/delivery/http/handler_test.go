@@ -106,7 +106,7 @@ func (c *fakeCache) Invalidate(_ context.Context, userID string) {
 
 type fakePublisher struct{}
 
-func (fakePublisher) PublishVideoUploaded(context.Context, string, string, string, string, string) error {
+func (fakePublisher) PublishVideoUploaded(context.Context, string, string, string, string, string, string) error {
 	return nil
 }
 

@@ -141,7 +141,7 @@ type fakePublisher struct {
 	err   error
 }
 
-func (p *fakePublisher) PublishVideoUploaded(context.Context, string, string, string, string, string) error {
+func (p *fakePublisher) PublishVideoUploaded(context.Context, string, string, string, string, string, string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.calls++
