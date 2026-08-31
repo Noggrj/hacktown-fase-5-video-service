@@ -54,6 +54,16 @@ func NewS3(ctx context.Context, bucket, region, endpoint, presignEndpoint, acces
 		if endpoint != "" {
 			o.BaseEndpoint = aws.String(endpoint)
 			o.UsePathStyle = true
+			// SDK versions >= v1.x default response checksum validation
+			// to "when supported", which signs an x-amz-checksum-mode
+			// header into presigned GetObject URLs. MinIO doesn't send
+			// (or expect) that header on the actual request, so every
+			// presigned download 400s with "There were headers present
+			// in the request which were not signed" — a real bug found
+			// via a live browser download, not a MinIO quirk. Real AWS
+			// S3 handles the default fine, so this only applies to the
+			// MinIO/local-dev branch.
+			o.ResponseChecksumValidation = aws.ResponseChecksumValidationWhenRequired
 		}
 	})
 
@@ -62,6 +72,7 @@ func NewS3(ctx context.Context, bucket, region, endpoint, presignEndpoint, acces
 		presignTarget := s3.NewFromConfig(cfg, func(o *s3.Options) {
 			o.BaseEndpoint = aws.String(presignEndpoint)
 			o.UsePathStyle = true
+			o.ResponseChecksumValidation = aws.ResponseChecksumValidationWhenRequired
 		})
 		presignClient = s3.NewPresignClient(presignTarget)
 	}
