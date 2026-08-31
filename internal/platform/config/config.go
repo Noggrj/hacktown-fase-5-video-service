@@ -25,24 +25,31 @@ type Config struct {
 	S3PresignEndpoint string
 	S3AccessKey       string
 	S3SecretKey       string
+
+	// CORSAllowedOrigins lists origins allowed to call this API from a
+	// browser (the frontend SPA). "*" (the default) is fine here: auth
+	// is a bearer token, not a cookie, so there's no credentialed
+	// request for a wildcard origin to expose.
+	CORSAllowedOrigins []string
 }
 
 func Load() *Config {
 	_ = godotenv.Load()
 	return &Config{
-		Port:              getenv("PORT", "8080"),
-		Env:               getenv("APP_ENV", "development"),
-		DBURL:             os.Getenv("DB_URL"),
-		JWTSecret:         os.Getenv("JWT_SECRET"),
-		ServiceName:       getenv("SERVICE_NAME", "fiapx-video-service"),
-		RedisAddr:         os.Getenv("REDIS_ADDR"),
-		S3Bucket:          os.Getenv("S3_BUCKET"),
-		AWSRegion:         getenv("AWS_REGION", "us-east-1"),
-		KafkaBrokers:      splitCSV(getenv("KAFKA_BROKERS", "")),
-		S3Endpoint:        os.Getenv("S3_ENDPOINT"),
-		S3PresignEndpoint: os.Getenv("S3_PRESIGN_ENDPOINT"),
-		S3AccessKey:       os.Getenv("S3_ACCESS_KEY"),
-		S3SecretKey:       os.Getenv("S3_SECRET_KEY"),
+		Port:               getenv("PORT", "8080"),
+		Env:                getenv("APP_ENV", "development"),
+		DBURL:              os.Getenv("DB_URL"),
+		JWTSecret:          os.Getenv("JWT_SECRET"),
+		ServiceName:        getenv("SERVICE_NAME", "fiapx-video-service"),
+		RedisAddr:          os.Getenv("REDIS_ADDR"),
+		S3Bucket:           os.Getenv("S3_BUCKET"),
+		AWSRegion:          getenv("AWS_REGION", "us-east-1"),
+		KafkaBrokers:       splitCSV(getenv("KAFKA_BROKERS", "")),
+		S3Endpoint:         os.Getenv("S3_ENDPOINT"),
+		S3PresignEndpoint:  os.Getenv("S3_PRESIGN_ENDPOINT"),
+		S3AccessKey:        os.Getenv("S3_ACCESS_KEY"),
+		S3SecretKey:        os.Getenv("S3_SECRET_KEY"),
+		CORSAllowedOrigins: splitCSV(getenv("CORS_ALLOWED_ORIGINS", "*")),
 	}
 }
 
