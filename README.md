@@ -9,6 +9,7 @@ para manter o status atualizado — nunca roda o `ffmpeg` diretamente.
 Contratos de evento em [`fiapx-events`](https://github.com/noggrj/hacktown-fase-5-events).
 Autenticação delegada ao [`fiapx-auth-service`](https://github.com/noggrj/hacktown-fase-5-auth-service)
 — este serviço só *valida* o JWT (mesmo `JWT_SECRET` compartilhado).
+[Documentação da arquitetura completa](https://github.com/noggrj/hacktown-fase-5-infra/blob/main/docs/ARQUITETURA.md).
 
 ## Arquitetura interna
 
