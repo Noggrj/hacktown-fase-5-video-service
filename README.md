@@ -94,14 +94,10 @@ ficam de fora do gate.
 
 ## Nota sobre o módulo `fiapx-events`
 
-`go.mod` usa `replace github.com/noggrj/hacktown-fase-5-events => ../fiapx-events`
-para desenvolvimento local (os dois repos precisam estar lado a lado no
-disco). **Antes do deploy real**, uma vez que `fiapx-events` esteja
-publicado e taggeado no GitHub, essa linha deve ser removida e a
-dependência fixada numa versão real via `go get github.com/noggrj/hacktown-fase-5-events@vX.Y.Z`
-— exatamente como `autorepair-billing-service` fez na Fase 4. Até lá, o
-job de build Docker do CI (que não enxerga o diretório irmão) falha por
-esse motivo — é uma limitação conhecida, não um bug silencioso.
+`go.mod` depende de `github.com/noggrj/hacktown-fase-5-events@v1.0.0`, a
+tag real publicada no GitHub — sem `replace` local, sem depender de um
+diretório irmão no disco. `docker build .` funciona standalone (é
+exatamente o que o job de build do CI faz).
 
 ## Deploy
 

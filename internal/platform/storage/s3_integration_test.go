@@ -56,7 +56,7 @@ func TestPresignGet_AgainstRealMinIO_URLIsUsableWithoutExtraHeaders(t *testing.T
 	if err != nil {
 		t.Fatalf("GET presigned URL: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("GET presigned URL = %d, want 200 (MinIO body: see Content-Length %d)", resp.StatusCode, resp.ContentLength)

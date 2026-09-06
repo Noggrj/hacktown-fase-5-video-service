@@ -70,7 +70,7 @@ func (h *Handler) HandleUpload(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadRequest, errors.New("missing 'video' form field"))
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	v, err := h.upload.Execute(r.Context(), userID, httpauth.Email(r.Context()), header.Filename, file, header.Size, r.Header.Get("traceparent"))
 	if err != nil {
