@@ -93,6 +93,20 @@ de negócio real — mesmo raciocínio documentado no README do
 precisam de Postgres/Redis/S3/Kafka reais pra um teste que valha a pena, e
 ficam de fora do gate.
 
+`internal/platform/storage/s3_integration_test.go` sobe um objeto de
+teste e baixa de volta via URL pré-assinada contra um MinIO real —
+reproduz e trava a regressão do bug de download real encontrado testando
+o frontend (presigned URL com header extra assinado que o MinIO
+rejeitava). Sem MinIO em `http://localhost:9000` (`docker compose up` no
+[`fiapx-infra/local`](https://github.com/noggrj/hacktown-fase-5-infra/tree/main/local)),
+o teste faz `t.Skip` — `go test ./...` local sem a stack no ar não falha,
+só pula esse teste específico silenciosamente. Pra rodar de verdade:
+
+```bash
+cd ../fiapx-infra/local && docker compose up -d minio minio-init
+cd ../../fiapx-video-service && go test ./internal/platform/storage/... -v
+```
+
 ## Nota sobre o módulo `fiapx-events`
 
 `go.mod` depende de `github.com/noggrj/hacktown-fase-5-events@v1.0.0`, a
