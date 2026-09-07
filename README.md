@@ -58,6 +58,13 @@ no README daquele repositório.
 | GET | `/health` / `/ready` | Liveness / readiness (Postgres, Redis, S3) |
 | GET | `/metrics` | Scrape Prometheus |
 
+Métrica de negócio própria: `fiapx_videos_uploaded_total` (contador),
+gravada em `internal/video/usecase/upload_video.go` assim que o upload é
+aceito (mesmo momento do `202`). As métricas de resultado do
+processamento (`fiapx_videos_processed_total`/`fiapx_videos_failed_total`/
+`fiapx_frames_extracted_total`) ficam no `fiapx-processing-worker`, não
+aqui — é ele quem sabe de verdade se o `ffmpeg` funcionou.
+
 ## Rodando localmente
 
 ```bash

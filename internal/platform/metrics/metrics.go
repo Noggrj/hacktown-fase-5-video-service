@@ -24,6 +24,16 @@ var (
 		Help:    "HTTP request latency in seconds.",
 		Buckets: prometheus.DefBuckets,
 	}, []string{"path", "method"})
+
+	// Business metric — exported so internal/video/usecase can record it
+	// directly. Counts an upload as soon as it's accepted (raw video in
+	// S3, row persisted) — same "already accepted" moment the 202
+	// response represents, regardless of whether the Kafka publish that
+	// follows succeeds.
+	VideosUploaded = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "fiapx_videos_uploaded_total",
+		Help: "Total videos successfully uploaded and accepted for processing.",
+	})
 )
 
 // Handler serves the /metrics scrape endpoint.

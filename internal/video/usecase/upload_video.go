@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/noggrj/hacktown-fase-5-video-service/internal/platform/metrics"
 	"github.com/noggrj/hacktown-fase-5-video-service/internal/video/domain"
 )
 
@@ -56,6 +57,7 @@ func (uc *UploadVideoUseCase) Execute(ctx context.Context, userID uuid.UUID, use
 	}
 
 	uc.cache.Invalidate(ctx, userID.String())
+	metrics.VideosUploaded.Inc()
 	uc.log.Info("video uploaded", slog.String("videoId", v.ID.String()), slog.String("userId", userID.String()))
 	return v, nil
 }
