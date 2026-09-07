@@ -123,3 +123,25 @@ razão documentada em `fiapx-auth-service`.
 Acesso ao S3 vem da IAM role do node group do EKS (ou de uma service
 account com IRSA, se configurado em `fiapx-infra`) — nenhuma credencial
 AWS estática é injetada no pod.
+
+### CI/CD — job `deploy`
+
+Pressupõe que a AWS já foi provisionada (`terraform apply` no
+[`fiapx-infra`](https://github.com/noggrj/hacktown-fase-5-infra)). Só
+roda com disparo manual (aba **Actions** → **Run workflow**) — nunca em
+push/PR.
+
+Faz: build + push pro ECR → cria/atualiza o Secret `fiapx-video-secret`
+→ aplica `k8s/base/` (substituindo o nome real do bucket no
+`configmap.yaml` antes) → roda `migrations/*.sql` contra o RDS → atualiza
+a imagem do Deployment e espera o rollout.
+
+**Secrets do repositório**, todos obrigatórios:
+
+| Secret / Variable | O que é |
+|---|---|
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` (secrets) | Credenciais temporárias da conta AWS Academy `voclabs` |
+| `DB_HOST` (secret) | Endpoint do RDS (`terraform output db_endpoints`) |
+| `DB_PASSWORD` (secret) | Senha do usuário `video` no RDS |
+| `JWT_SECRET` (secret) | Mesmo valor do `fiapx-auth-service` |
+| `S3_BUCKET_NAME` (**variable**, não secret — não é sensível) | Nome real do bucket (`terraform output videos_bucket_name`) — o nome leva o account id AWS pra não colidir com outra conta |

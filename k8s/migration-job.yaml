@@ -1,0 +1,38 @@
+# Job one-shot que aplica migrations/*.sql contra o RDS de produção.
+# Mesmo padrão do fiapx-auth-service/k8s/migration-job.yaml — ver esse
+# arquivo pro raciocínio completo (ConfigMap gerado pelo CD a partir de
+# migrations/, Job recriado a cada deploy, Secret reusado do app).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fiapx-video-migrate
+  namespace: fiapx
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: postgres:16-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              for f in $(ls /migrations/*.sql | sort); do
+                echo "applying $f"
+                psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$f"
+              done
+          envFrom:
+            - secretRef:
+                name: fiapx-video-secret
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
+              readOnly: true
+      volumes:
+        - name: migrations
+          configMap:
+            name: fiapx-video-migrations

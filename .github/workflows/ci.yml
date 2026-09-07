@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Dispara o job "deploy" (build+push da imagem pro ECR, rollout no EKS).
+  # Não roda em push/PR de propósito: sem cluster provisionado por padrão
+  # (ver fiapx-infra), isso ficaria vermelho sempre. Ver "Deploy" no
+  # README pros Secrets/Variables necessários antes de disparar.
+  workflow_dispatch: {}
 
 env:
   GO_VERSION: "1.25"
@@ -87,3 +92,74 @@ jobs:
       - name: Container smoke test (local build only)
         run: |
           docker run --rm fiapx-video-service:ci ./server --version
+
+  # Só roda com o disparo manual (workflow_dispatch) — nunca em push/PR.
+  # Precisa de: Secrets AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+  # AWS_SESSION_TOKEN (credenciais temporárias da conta AWS Academy
+  # voclabs — renova antes de disparar), DB_PASSWORD (usuário "video" no
+  # RDS), DB_HOST (endpoint do RDS), JWT_SECRET (MESMO valor do
+  # fiapx-auth-service); Variable S3_BUCKET_NAME (nome real do bucket,
+  # sai do output "videos_bucket_name" do terraform apply). Pressupõe
+  # que "terraform apply" já rodou no fiapx-infra.
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'workflow_dispatch'
+    environment: production
+    env:
+      AWS_REGION: us-east-1
+      CLUSTER_NAME: fiapx-cluster
+      ECR_REPO: fiapx-video-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configura credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login no ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build e push da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ github.sha }}
+            ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:latest
+          build-args: VERSION=${{ github.sha }}
+
+      - name: Atualiza kubeconfig
+        run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: Cria/atualiza o Secret fiapx-video-secret
+        run: |
+          kubectl create namespace fiapx --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create secret generic fiapx-video-secret -n fiapx \
+            --from-literal=DB_URL="postgres://video:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:5432/fiapx_video?sslmode=require" \
+            --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Aplica os manifests (com o nome real do bucket S3)
+        run: |
+          sed "s/fiapx-videos-production/${{ vars.S3_BUCKET_NAME }}/" k8s/base/configmap.yaml | kubectl apply -f -
+          kubectl apply -f k8s/base/namespace.yaml -f k8s/base/deployment.yaml -f k8s/base/service.yaml -f k8s/base/hpa.yaml
+
+      - name: Roda as migrations do banco
+        run: |
+          kubectl create configmap fiapx-video-migrations -n fiapx --from-file=migrations \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl delete job/fiapx-video-migrate -n fiapx --ignore-not-found
+          kubectl apply -f k8s/migration-job.yaml
+          kubectl wait --for=condition=complete --timeout=120s job/fiapx-video-migrate -n fiapx
+
+      - name: Atualiza a imagem do Deployment
+        run: |
+          kubectl set image deployment/fiapx-video app=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ github.sha }} -n fiapx
+          kubectl rollout status deployment/fiapx-video -n fiapx --timeout=180s
